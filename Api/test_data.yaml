@@ -1,0 +1,53 @@
+positive:
+  - name: "Поиск фильма с использованием фильтров"
+    endpoint: "/movie"
+    params:
+      year: 2023
+      "genres.name": "криминал"
+
+  - name: "Поиск фильмов по рейтингу"
+    endpoint: "/movie"
+    params:
+      page: 1
+      limit: 10
+      "rating.kp": "9 - 10"
+
+  - name: "Поиск фильма по названию"
+    endpoint: "/movie/search"
+    params:
+      page: 1
+      limit: 10
+      query: "Домовой"
+
+negative:
+  - name: "Поиск фильма с датой из будущего"
+    endpoint: "/movie"
+    params:
+      page: 1
+      limit: 10
+      year: 2999
+
+  - name: "Поиск фильма с некорректным токеном"
+    endpoint: "/movie/1111102"
+    api_key: "sdfhgfjhgkhhgkj"
+
+  - name: "Поиск фильма с несуществующим диапазоном рейтинга"
+    endpoint: "/movie"
+    params:
+      page: 1
+      limit: 10
+      "rating.kp": "12 - 30"
+
+  - name: "Поиск фильма по несуществующему названию"
+    endpoint: "/movie/search"
+    params:
+      page: 1
+      limit: 10
+      query: "hghfghfghsc3edf"
+
+  - name: "Поиск фильма с датой из далёкого прошлого"
+    endpoint: "/movie"
+    params:
+      page: 1
+      limit: 10
+      year: 999
