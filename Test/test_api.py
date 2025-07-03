@@ -14,7 +14,7 @@ with open(BASE_DIR / "config.yaml", encoding="utf-8") as f:
 with open(BASE_DIR / "test_data.yaml", encoding="utf-8") as f:
     test_data: Dict[str, Any] = yaml.safe_load(f)
 
-BASE_URL: str = config["base_url"]
+API_BASE_URL: str = config["API_BASE_URL"]
 DEFAULT_API_KEY: str = config["api_key"]
 
 HEADERS: Dict[str, str] = {
@@ -42,7 +42,7 @@ def make_request(
         headers = HEADERS.copy()
         if api_key:
             headers["X-API-KEY"] = api_key
-        url = BASE_URL + endpoint
+        url = API_BASE_URL + endpoint
         response = requests.request(method, url, headers=headers, params=params)
         allure.attach(url, name="URL запроса", attachment_type=allure.attachment_type.URI_LIST)
         allure.attach(str(headers), name="Заголовки запроса", attachment_type=allure.attachment_type.TEXT)
@@ -112,17 +112,10 @@ def test_search_movie_future_year() -> None:
     case = next(c for c in test_data["negative"] if c["name"] == "Поиск фильма с датой из будущего")
     with allure.step(f"Выполнение запроса: {case['name']}"):
         response = make_request("GET", case["endpoint"], params=case.get("params"))
-        with allure.step("Проверка кода ответа или пустого результата"):
+        with allure.step("Проверка кода ответа 400"):
             allure.attach(str(response.status_code), name="Status Code", attachment_type=allure.attachment_type.TEXT)
             allure.attach(response.text, name="Response Body", attachment_type=allure.attachment_type.JSON)
-            # Либо ошибка, либо 200 с пустым списком
-            assert response.status_code != 200 or (
-                response.status_code == 200 and (
-                    len(response.json().get("docs", [])) == 0 or
-                    len(response.json().get("items", [])) == 0 or
-                    response.json().get("total", 1) == 0
-                )
-            )
+            assert response.status_code == 400, f"Ожидался код 400, получен {response.status_code}"
 
 
 @allure.feature("Негативные тесты Кинопоиска")
@@ -149,16 +142,10 @@ def test_search_movie_invalid_rating_range() -> None:
     case = next(c for c in test_data["negative"] if c["name"] == "Поиск фильма с несуществующим диапазоном рейтинга")
     with allure.step(f"Выполнение запроса: {case['name']}"):
         response = make_request("GET", case["endpoint"], params=case.get("params"))
-        with allure.step("Проверка кода ответа или пустого результата"):
+        with allure.step("Проверка кода ответа 400"):
             allure.attach(str(response.status_code), name="Status Code", attachment_type=allure.attachment_type.TEXT)
             allure.attach(response.text, name="Response Body", attachment_type=allure.attachment_type.JSON)
-            assert response.status_code != 200 or (
-                response.status_code == 200 and (
-                    len(response.json().get("docs", [])) == 0 or
-                    len(response.json().get("items", [])) == 0 or
-                    response.json().get("total", 1) == 0
-                )
-            )
+            assert response.status_code == 400, f"Ожидался код 400, получен {response.status_code}"
 
 
 @allure.feature("Негативные тесты Кинопоиска")
@@ -170,17 +157,10 @@ def test_search_movie_nonexistent_name() -> None:
     case = next(c for c in test_data["negative"] if c["name"] == "Поиск фильма по несуществующему названию")
     with allure.step(f"Выполнение запроса: {case['name']}"):
         response = make_request("GET", case["endpoint"], params=case.get("params"))
-        with allure.step("Проверка кода ответа или пустого результата"):
-            allure.attach(str(response.status_code), name="Status Code", attachment_type=allure.attachment_type.TEXT)
-            allure.attach(response.text, name="Response Body", attachment_type=allure.attachment_type.JSON)
-            assert response.status_code != 200 or (
-                response.status_code == 200 and (
-                    len(response.json().get("docs", [])) == 0 or
-                    len(response.json().get("items", [])) == 0 or
-                    response.json().get("total", 1) == 0
-                )
-            )
-
+    with allure.step("Проверка кода ответа"):
+        allure.attach(str(response.status_code), name="Status Code", attachment_type=allure.attachment_type.TEXT)
+        allure.attach(response.text, name="Response Body", attachment_type=allure.attachment_type.JSON)
+        assert response.status_code == 200, f"Ожидался статус 200, получен {response.status_code}"
 
 @allure.feature("Негативные тесты Кинопоиска")
 @allure.title("Поиск фильма с датой из далёкого прошлого (негативный кейс)")
@@ -191,13 +171,7 @@ def test_search_movie_past_year() -> None:
     case = next(c for c in test_data["negative"] if c["name"] == "Поиск фильма с датой из далёкого прошлого")
     with allure.step(f"Выполнение запроса: {case['name']}"):
         response = make_request("GET", case["endpoint"], params=case.get("params"))
-        with allure.step("Проверка кода ответа или пустого результата"):
-            allure.attach(str(response.status_code), name="Status Code", attachment_type=allure.attachment_type.TEXT)
-            allure.attach(response.text, name="Response Body", attachment_type=allure.attachment_type.JSON)
-            assert response.status_code != 200 or (
-                response.status_code == 200 and (
-                    len(response.json().get("docs", [])) == 0 or
-                    len(response.json().get("items", [])) == 0 or
-                    response.json().get("total", 1) == 0
-                )
-            )
+    with allure.step("Проверка кода ответа 400"):
+        allure.attach(str(response.status_code), name="Status Code", attachment_type=allure.attachment_type.TEXT)
+        allure.attach(response.text, name="Response Body", attachment_type=allure.attachment_type.JSON)
+        assert response.status_code == 400, f"Ожидался статус 400, получен {response.status_code}"

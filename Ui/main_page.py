@@ -7,7 +7,12 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 
 from . import config
-
+from .constants import (
+    SELECTOR_CAPTCHA_BUTTON,
+    SELECTOR_LOGO_IMG,
+    SELECTOR_RATING_SPAN,
+    SELECTOR_NAVIGATION_MENU,
+)
 
 class MainPage:
     URL = config.BASE_URL
@@ -27,7 +32,7 @@ class MainPage:
         :return: True, если капча есть, иначе False
         """
         try:
-            self.driver.find_element(By.CSS_SELECTOR, config.SELECTOR_CAPTCHA_BUTTON)
+            self.driver.find_element(By.CSS_SELECTOR, SELECTOR_CAPTCHA_BUTTON)
             return True
         except NoSuchElementException:
             return False
@@ -39,9 +44,13 @@ class MainPage:
         """
         if self.is_captcha_page():
             try:
-                button = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, config.SELECTOR_CAPTCHA_BUTTON)))
+                button = self.wait.until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, SELECTOR_CAPTCHA_BUTTON))
+                )
                 button.click()
-                self.wait.until_not(EC.presence_of_element_located((By.CSS_SELECTOR, config.SELECTOR_CAPTCHA_BUTTON)))
+                self.wait.until_not(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, SELECTOR_CAPTCHA_BUTTON))
+                )
             except TimeoutException:
                 pass
 
@@ -61,7 +70,7 @@ class MainPage:
         :return: True, если логотип видим, иначе False
         """
         try:
-            self.wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, config.SELECTOR_LOGO_IMG)))
+            self.wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, SELECTOR_LOGO_IMG)))
             return True
         except TimeoutException:
             return False
@@ -73,7 +82,9 @@ class MainPage:
 
         :return: WebElement с рейтингом
         """
-        return self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, config.SELECTOR_RATING_SPAN)))
+        return self.wait.until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, SELECTOR_RATING_SPAN))
+        )
 
     @allure.step("Получить элемент меню навигации")
     def navigation_menu(self):
@@ -82,7 +93,9 @@ class MainPage:
 
         :return: WebElement меню навигации
         """
-        return self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, config.SELECTOR_NAVIGATION_MENU)))
+        return self.wait.until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, SELECTOR_NAVIGATION_MENU))
+        )
 
     @allure.step("Получить расположение и размер меню")
     def get_navigation_menu_location(self):
@@ -113,7 +126,7 @@ class MainPage:
         """
         return self.driver.execute_script(
             "return window.getComputedStyle(arguments[0]).getPropertyValue('cursor');",
-            element
+            element,
         )
 
     @allure.step("Открыть страницу фильма по ID")
@@ -122,7 +135,7 @@ class MainPage:
         Открывает страницу фильма по ID.
 
         :param film_id: ID фильма. Если None, используется дефолт из config.
-        """ 
+        """
         if film_id is None:
             film_id = config.FILM_ID
         film_url = f"{self.URL}film/{film_id}"

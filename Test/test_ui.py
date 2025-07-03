@@ -28,7 +28,7 @@ def test_main_page_loads(main_page) -> None:
     Проверяет, что главная страница загружается корректно.
     """
     wait = WebDriverWait(main_page.driver, 20)
-    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, config.SELECTOR_LOGO_IMG)))
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'img[alt="Кинопоиск"]')))
     assert main_page.is_loaded(), "Главная страница не загрузилась"
 
 @allure.title("Проверка отображения и расположения рейтинга фильма")
@@ -50,7 +50,7 @@ def test_browser_back_button(driver, main_page) -> None:
     driver.get(f"{config.BASE_URL}film/{config.FILM_ID}")
     driver.back()
     wait = WebDriverWait(driver, 10)
-    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, config.SELECTOR_LOGO_IMG)))
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'img[alt="Кинопоиск"]')))
     assert "Кинопоиск" in driver.title
 
 @allure.title("Проверка расположения меню навигации слева")
@@ -67,7 +67,7 @@ def test_cursor_changes_to_pointer_on_hover(main_page) -> None:
     Проверяет, что при наведении курсор меняется на pointer.
     """
     wait = WebDriverWait(main_page.driver, 10)
-    active_elem = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, config.SELECTOR_LOGO_IMG)))
+    active_elem = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'img[alt="Кинопоиск"]')))
     main_page.hover_over_element(active_elem)
     cursor = main_page.get_cursor_style_on_element(active_elem)
     assert cursor == "pointer", f"Курсор не pointer, а {cursor}"
